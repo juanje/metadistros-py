@@ -1,5 +1,0 @@
-- Terminar funciones de metaconf/system/users.py
-- Añadir modulos host y algun otro mas a metaconf/system/
-- Crear el esqueleto de metaconf/{live.py,install.py}
-- Crear el esqueleto del Calzador( calzador.py ) y del 
-Instalador ( xinstaller.py )
