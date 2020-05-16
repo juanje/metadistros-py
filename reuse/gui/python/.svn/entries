@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="87"
+   name=""
+   committed-date="2004-03-02T03:49:01.259084Z"
+   url="http://www.hispalinux.es:8080/svn/metadistros/unstable/reuse/gui/python"
+   last-author="juanje"
+   kind="dir"
+   uuid="c5952e15-97c9-0310-83f2-dcd8201056ed"
+   revision="243"/>
+<entry
+   committed-rev="87"
+   name="parts.py"
+   text-time="2004-03-02T02:19:39.000000Z"
+   committed-date="2004-03-02T03:49:01.259084Z"
+   checksum="73595c479bdf248b23a7b95e77b4ba9a"
+   last-author="juanje"
+   kind="file"
+   prop-time="2003-11-15T03:30:13.000000Z"/>
+<entry
+   committed-rev="87"
+   name="prueba.py"
+   text-time="2004-03-02T02:19:39.000000Z"
+   committed-date="2004-03-02T03:49:01.259084Z"
+   checksum="3d5a3dfc229767c6b25b2533de945760"
+   last-author="juanje"
+   kind="file"
+   prop-time="2003-11-15T03:30:13.000000Z"/>
+<entry
+   committed-rev="87"
+   name="wizard.py"
+   text-time="2004-03-02T02:19:39.000000Z"
+   committed-date="2004-03-02T03:49:01.259084Z"
+   checksum="a926d335c5771bc182e61b6b1ded1740"
+   last-author="juanje"
+   kind="file"
+   prop-time="2003-11-15T03:30:13.000000Z"/>
+</wc-entries>

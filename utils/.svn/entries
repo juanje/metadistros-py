@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="85"
+   name=""
+   committed-date="2004-03-02T02:53:47.668231Z"
+   url="http://www.hispalinux.es:8080/svn/metadistros/unstable/utils"
+   last-author="juanje"
+   kind="dir"
+   revision="243"/>
+<entry
+   committed-rev="85"
+   name="super_mods.lst"
+   text-time="2004-03-02T01:10:34.000000Z"
+   committed-date="2004-03-02T02:53:47.668231Z"
+   checksum="69a912721d406663136ba231abe7888f"
+   last-author="juanje"
+   kind="file"/>
+<entry
+   committed-rev="85"
+   name="mod_depends.lst"
+   text-time="2004-03-02T01:10:34.000000Z"
+   committed-date="2004-03-02T02:53:47.668231Z"
+   checksum="0136f3b7aa6deabb10cd3931fd8ac95d"
+   last-author="juanje"
+   kind="file"/>
+<entry
+   committed-rev="85"
+   name="mods.lst"
+   text-time="2004-03-02T01:10:34.000000Z"
+   committed-date="2004-03-02T02:53:47.668231Z"
+   checksum="eba64fca5a9765237575659bca3637eb"
+   last-author="juanje"
+   kind="file"/>
+<entry
+   committed-rev="85"
+   name="find_mod.sh"
+   text-time="2004-03-02T01:10:34.000000Z"
+   committed-date="2004-03-02T02:53:47.668231Z"
+   checksum="dbea24ec12182f8a02ea33f4f3c81d31"
+   last-author="juanje"
+   kind="file"
+   prop-time="2004-03-02T01:17:50.000000Z"/>
+</wc-entries>

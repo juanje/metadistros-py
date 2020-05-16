@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="87"
+   name=""
+   committed-date="2004-03-02T03:49:01.259084Z"
+   url="http://www.hispalinux.es:8080/svn/metadistros/unstable/reuse/installer"
+   last-author="juanje"
+   kind="dir"
+   revision="243"/>
+<entry
+   committed-rev="87"
+   name="TODO"
+   text-time="2004-03-02T02:19:39.000000Z"
+   committed-date="2004-03-02T03:49:01.259084Z"
+   checksum="b591e0e68560a4e58fbfc5e9a0430ccf"
+   last-author="juanje"
+   kind="file"/>
+<entry
+   committed-rev="87"
+   name="main.py"
+   text-time="2004-03-02T02:19:39.000000Z"
+   committed-date="2004-03-02T03:49:01.259084Z"
+   checksum="f37adbd26800be10b59c99b0f4c75ad9"
+   last-author="juanje"
+   kind="file"
+   prop-time="2004-03-02T02:19:39.000000Z"/>
+</wc-entries>

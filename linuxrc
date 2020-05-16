@@ -1,0 +1,161 @@
+#!/bin/sh
+# Linuxrc del Calzador 2.0
+
+#####
+#  Funciones
+
+# Mostrar una shell
+show_shell(){
+    export PS1="\h:\w\$ "
+    sh
+    exit 0
+}
+
+# Guarda logs y muestra en caso de estar activada la variable DEBUG
+echo_debug(){
+    if [ "$DEBUG" = "Y" ] ; then
+        logger -s -t MSG -p syslog.info -- "$*..."
+    else
+        logger -t MSG -p syslog.info -- "$*"
+    fi
+}
+
+# Ejecuta un comando guardando el log
+ERROR="FALSE"
+do_debug(){
+    $* > /tmp/syslog 2>&1 || ERROR="TRUE"
+    if [ "$DEBUG" = "Y" ] ; then
+        logger -s -t CMD -p syslog.debug -- "$*"
+        logger -s -t MSG -p syslog.debug -- < /tmp/syslog
+    else
+        logger -t CMD -p syslog.debug -- "$*"
+        logger -t MSG -p syslog.debug -- < /tmp/syslog
+    fi
+    if [ "$ERROR" = "TRUE" ]; then
+    	return 1
+    else
+        return 0
+    fi
+}
+
+# Desactiva los mensajes del kernel si DEBUG esta desactivada
+MSG_K="ON"
+kernel_off(){
+    if [ "$DEBUG" != "Y" ] ; then
+        echo "0" > /proc/sys/kernel/printk
+        MSG_K="OFF"
+    fi
+}
+
+# Activa los mensajes del kernel si estuvieran desactivados
+kernel_on(){
+    if [ "$MSG_K" = "OFF" ] ; then
+        echo "6" > /proc/sys/kernel/printk
+        MSG_K="ON"
+    fi
+}
+
+
+#####
+# Comienza el Linuxrc
+syslogd
+# Montar /proc y demas del /etc/fstab
+clear
+do_debug mount -t proc none /proc
+do_debug mount -t devpts none /dev/pts
+echo 0x0100 > /proc/sys/kernel/real-root-dev
+echo_debug "Establecido el dispositivo root -> 0x0100 (/dev/ram)"
+
+# Exporta las variables del arranque
+echo_debug "Exportando variables de var.conf"
+if [ -f "/etc/meta/var.conf" ] ; then
+    export `cat /etc/meta/var.conf | grep -v \#`
+fi
+
+echo_debug "Estableciendo las locales"
+if [ -f "/etc/meta/lang.conf" ] ; then
+    . /etc/meta/lang.conf
+fi
+
+echo_debug "Exportando variables de /proc/cmdline"
+if [ -f "/proc/cmdline" ] ; then
+    export `cat /proc/cmdline | tr -s " " "\n" | grep "="`
+fi
+
+# Configurar entorno
+echo_debug "Estableciendo el nombre del Host"
+echo ${HOSTNAME} > /proc/sys/kernel/hostname
+echo_debug "Cargando el mapa de teclado"
+do_debug loadkmap < /usr/keymaps/${LANGUAGE}.map
+
+# Exportar el PATH
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/X11"
+export PATH
+
+# Montar /lib/modules/
+kernel_off
+do_debug insmod /lib/modules/squashfs.o
+do_debug insmod /lib/modules/loop.o
+do_debug losetup /dev/loop0 /lib/modules/modules.squashfs
+do_debug mount -r -t squashfs /dev/loop0 /lib/modules/
+
+# Cargar modulos
+# Modulos USB
+do_debug modprobe usbcore
+for MODULE in ehci-hcd usb-uhci usb-ohci uhci ; do
+    (do_debug modprobe $MODULE) && USB="Y"
+done
+if [ "$USB" = "Y" ] ; then
+    do_debug modprobe input
+    do_debug mount -t usbdevfs none /proc/bus/usb
+else
+    echo_debug "Eliminamos soporte USB"
+    do_debug rmmod usbcore
+fi
+# Modulos Firewire
+do_debug modprobe ohci1394
+# Modulos PCMCIA
+do_debug modprobe pcmcia_core
+for MODULE in yenta_socket i82365 tcic ; do
+    (do_debug modprobe $MODULE) && PCMCIA="Y"
+done
+if [ "$PCMCIA" = "Y" ] ; then
+    do_debug modprobe ds
+else
+    echo_debug "Eliminamos soporte PCMCIA"
+    do_debug rmmod pcmcia_core
+fi
+# Se activan los mensajes del kernel
+kernel_on
+
+# Comprueba si se quiere arrancar una shell
+if [ "$SHELL" = "Y" ] ; then
+    show_shell
+fi
+
+# Comprueba si existe el archivo calzador.squashfs
+if [ ! -f "/usr/calzador.squashfs" ] ; then
+    cat <<EOF
+No se encontró el Calzador.
+Ahora aparecerá una shell para que pueda ver el problema.
+
+(Los log del sistema están en /var/log/messages)
+
+EOF
+    show_shell
+fi
+
+# Si existe el archivo calzador.squashfs, lo monta
+kernel_off
+do_debug losetup /dev/loop1 /usr/calzador.squashfs
+do_debug mount -r -t squashfs /dev/loop1 /usr/local/usr/
+kernel_on 
+
+
+#FIXME: Antes de lanzar el Calzador debemos montar la distro
+# y hacer el pivot_root
+# Lanzamos el Calzador
+python /sbin/calzador.py
+reboot
+
+

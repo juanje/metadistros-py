@@ -1,0 +1,332 @@
+#!/usr/bin/python
+# -*- coding: iso-8859-1 -*-
+
+#Copyright (C) Fiz Vazquez vud1@sindominio.net
+
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+import gtk
+import gtk.glade
+import os
+import gobject
+import time
+import gettext
+
+import string,sys,getopt
+from os.path import *
+
+
+from SimpleGladeApp import SimpleGladeApp
+
+
+DIR = "/usr/share/locale"
+
+#translation = gettext.translation("xevian-install",DIR,['en'])
+#translation.install()
+
+#gtk.glade.bindtextdomain("xevian_install", "/usr/share/locale")
+
+gettext.bindtextdomain("xevian-install", DIR )
+gtk.glade.bindtextdomain("xevian-install", DIR )
+gtk.glade.textdomain("xevian-install")
+gettext.textdomain("xevian-install")
+gettext.install("xevian-install",DIR,unicode=1)
+
+print _("pyparted")
+
+class SynceGladeApp(SimpleGladeApp):
+	def new(self):
+		self.fases = [self.fase1,self.fase2,self.fase3,self.fase4,self.fase5,self.fase6]
+		self.paso = 0
+		self.radiobutton4Group = 0
+		self.hostname = ""
+		self.rpassword = ""
+		self.upassword = ""
+		self.uname = ""
+		self.ip = ""
+		self.broadcast = ""
+		self.netmask = ""
+		self.gateway = ""
+		self.dns = ""
+
+	def on_ayuda_clicked(self,widget):
+		window2 = SynceGladeApp('./instalador.glade', 'window2')
+		window2.show()
+		
+	def on_aceptar_clicked(self,widget):
+		if (self.fases[0]==self.fase1):
+			self.anterior.set_sensitive(1)
+			self.continuar_fase()
+			self.radiobutton9.set_active(1)
+			self.radiobutton2.set_active(1)
+		
+		elif (self.fases[0]==self.fase2):
+			if (self.radiobutton1.get_active()):
+				os.system("/isolinux/cdroot/sbin/autopart.sh")
+			else:
+				if (self.radiobutton2.get_active()):
+					os.system("/isolinux/cdroot/sbin/manupart.sh")
+				if (self.radiobutton10.get_active()):
+					os.system("gksudo \"xterm -e cfdisk\"")
+			self.continuar_fase()
+		
+		elif (self.fases[0]==self.fase3):
+			password=self.entry_pass1.get_text()
+			password2=self.entry_pass2.get_text()
+			username=self.entry_usuario.get_text()
+			if (password):
+				if (username):
+					if (password==password2):
+						self.upassword = password
+						self.uname = username
+						self.continuar_fase()
+					else:
+						self.label_error2.set_markup("<span color='red'><b>Error: Las dos contraseñas deben ser iguales</b></span>")
+						#self.label_error2.set_markup(_("las dos pass deben ser iguales"))
+				else:
+					self.label_error2.set_markup("<span color='red'><b>Error: No deje el nombre de usuario en blanco</b></span>")
+			else:
+				self.label_error2.set_markup("<span color='red'><b>Error: No deje las contraseñas en blanco</b></span>")
+		
+		elif (self.fases[0]==self.fase4):
+			rpassword=self.entry2.get_text()
+			rpassword2=self.entry3.get_text()
+			host=self.entry4.get_text()
+			if (rpassword):
+				if (host):
+					if (rpassword==rpassword2):
+						self.rpassword = rpassword
+						self.hostname = host
+						self.continuar_fase()
+					else:
+						self.label_error1.set_markup("<span color='red'><b>Error: Las dos contraseñas deben ser iguales</b></span>")
+				else:
+					self.label_error1.set_markup("<span color='red'><b>Error: No deje el nombre del sistema en blanco</b></span>")
+			else:
+				self.label_error1.set_markup("<span color='red'><b>Error: No deje las contraseñas en blanco</b></span>")
+
+		elif (self.fases[0]==self.fase5):
+			varconf = '/tmp/var.conf'
+			if (self.radiobutton4.get_active()):
+				print "ip automatica"
+				file = open(varconf, 'a')
+				file.seek(0,2)
+				file.write("HOSTNAME=%s\nUSERNAME=%s\nUPASSWORD=%s\nRPASSWORD=%s\nDHCP=Y\n" % (self.hostname,self.uname,self.upassword,self.rpassword))
+				file.close()
+			else:
+				print "ip manual"
+				self.dhcp = "N"
+				self.ip = "%s.%s.%s.%s" % (self.ip1.get_text(),self.ip2.get_text(),self.ip3.get_text(),self.ip4.get_text())
+				self.gateway = "%s.%s.%s.%s" % (self.gateway1.get_text(),self.gateway2.get_text(),self.gateway3.get_text(),self.gateway4.get_text())
+				self.netmask = "%s.%s.%s.%s" % (self.netmask1.get_text(),self.netmask2.get_text(),self.netmask3.get_text(),self.netmask4.get_text())
+				self.dns = "%s.%s.%s.%s" % (self.dns1.get_text(),self.dns2.get_text(),self.dns3.get_text(),self.dns4.get_text())
+				
+				file = open(varconf, 'a')
+				file.seek(0,2)
+				file.write("HOSTNAME=%s\nUSERNAME=%s\nUPASSWORD=%s\nRPASSWORD=%s\nDHCP=N\nIP=%s\nBROADCAST=%s\nNETMASK=%s\nGATEWAY=%s\nDNS=%s\n" % (self.hostname,self.uname,self.upassword,self.rpassword,self.ip,self.broadcast,self.netmask,self.gateway,self.dns))
+				file.close()
+			self.continuar_fase()
+			
+		elif (self.fases[0]==self.fase6):
+			if (self.paso==0):
+				self.aceptar.set_sensitive(0)
+				self.cancelar.set_sensitive(0)
+				self.anterior.set_sensitive(0)
+				MOUNTPOINT="/mnt"
+				os.system("/sbin/fdisk -l | awk '/^\/dev\// {if ($2 != \"*\") {if ($5 == \"82\") { print $1 }}}' > /tmp/tmpfdisk")
+				SWCHOICE = self.leer_fichero("/tmp/tmpfdisk") 
+				FSCHOICE = self.leer_fichero("/tmp/fschoice")
+				print("FSCHOICE tiene el valor: %s" %FSCHOICE)
+				print("SWCHOICE tiene el valor: %s" %SWCHOICE)
+				print("MOUNTPOINT tiene el valor: %s" %MOUNTPOINT)
+				#formateando particion destino
+				self.install_status.set_text("Formateando %s" %FSCHOICE)
+				self.actualizar_barra(0.05)
+				os.system("/sbin/mkfs.ext3 %s > /tmp/mkfs.log 2>&1" %FSCHOICE)
+				#creando particion swap
+				self.install_status.set_text("Creando particion swap...")
+				self.actualizar_barra(0.25)
+				os.system("/sbin/mkswap %s > /tmp/mkswap.log 2>&1" %SWCHOICE)
+				#activando particion swap
+				self.install_status.set_text("Activando particion swap...")
+				self.actualizar_barra(0.3)
+				os.system("/sbin/swapon %s > /tmp/swapon.log 2>&1" %SWCHOICE)
+				#montando particion swap
+				self.install_status.set_text("Montando %s en %s..." %(FSCHOICE,MOUNTPOINT))
+				self.actualizar_barra(0.31)
+				print("mount -t ext3 %s %s >> /tmp/mount.log 2>&1" %(FSCHOICE , MOUNTPOINT))
+				os.system("mount -t ext3 %s %s >> /tmp/mount.log 2>&1" %(FSCHOICE , MOUNTPOINT))
+				#montando particion swap
+				self.install_status.set_text("Montando %s en %s..." %(FSCHOICE,MOUNTPOINT))
+				self.actualizar_barra(0.31)
+				os.system("mount -t ext3 %s %s >> /tmp/mount.log 2>&1" %(FSCHOICE,MOUNTPOINT))
+				# Copiar distro al disco
+				self.install_status.set_text("Copiando ficheros")
+				self.actualizar_barra(0.32)
+				# aqui barra-progressive
+				tam_total = self.dir_size("/META", 0, 0, 0)
+				os.system("(cp -af /META/* %s/ >/tmp/cp_meta.log 2>&1;touch /tmp/cp_end)&" %MOUNTPOINT)
+				while ((os.path.isfile("/tmp/cp_end"))==0):
+					if (os.path.isfile("%s/etc/" %MOUNTPOINT)==0):
+						porcentaje=37
+					if (os.path.isfile("%s/mnt/" %MOUNTPOINT)==0):
+						porcentaje=42
+					if (os.path.isfile("%s/usr/" %MOUNTPOINT)==0):
+						porcentaje=47
+					if (os.path.isfile("%s/info/" %MOUNTPOINT)==0):
+						porcentaje=52
+					if (os.path.isfile("%s/sbin/" %MOUNTPOINT)==0):
+						porcentaje=57
+					if (os.path.isfile("%s/var/" %MOUNTPOINT)==0):
+						porcentaje=62
+					if (os.path.isfile("%s/log/" %MOUNTPOINT)==0):
+						porcentaje=67
+					#tam = self.dir_size(MOUNTPOINT, 0, 0, 0)
+					#porcentaje = float(((tam * 50)/tam_total) + 32)/100
+					self.actualizar_barra(porcentaje)
+					time.sleep(1)	
+				# Copiando kernel y modulos
+				self.install_status.set_text("Copiando el nucleo y los drivers")
+				self.actualizar_barra(0.83)
+				os.system("/isolinux/cdroot/sbin/cf_ker_mod.sh %s" %MOUNTPOINT)
+				self.install_status.set_text("Preparando el arranque")
+				self.actualizar_barra(0.85)
+				print("/isolinux/cdroot/sbin/cf_fstab_grub.sh %s" %FSCHOICE)
+				os.system("/isolinux/cdroot/sbin/cf_fstab_grub.sh %s" %FSCHOICE)
+				self.install_status.set_text("Ultimando la configuracion")
+				self.actualizar_barra(0.95)
+				os.system("/isolinux/cdroot/sbin/cf_user_net.sh %s" %MOUNTPOINT)
+				#finalizado	
+				self.install_status.set_text("instalacion finalizada")
+				self.actualizar_barra(1)
+				self.paso=1
+				self.aceptar.set_sensitive(1)
+				self.cancelar.set_sensitive(1)
+				self.anterior.set_sensitive(1)
+			
+			else:
+				self.continuar_fase()
+				
+		elif (self.fases[0]==self.fase7):
+			self.gtk_main_quit()
+	
+	def on_anterior_clicked(self,widget):
+		if (self.fases[0] == self.fase2):
+			self.anterior.set_sensitive(0)
+		self.retrasar_fase()
+
+	def on_part_manual_clicked(self,widget):
+		self.vbox18.set_sensitive(1)	
+		self.hbox22.set_sensitive(0)	
+
+	def on_part_automatica_clicked(self,widget):
+		self.vbox18.set_sensitive(0)	
+		self.hbox22.set_sensitive(1)	
+	
+	def on_redsi_button_clicked(self,widget):
+		self.hbox23.set_sensitive(1)	
+	
+	def on_redno_button_clicked(self,widget):
+		self.hbox23.set_sensitive(0)	
+		
+	def on_ipdhcp_clicked(self,widget):
+		self.table1.set_sensitive(0)
+		print "ipdhcp"
+
+	def on_ipmanual_clicked(self,widget):
+		self.table1.set_sensitive(1)
+		print "ipmanual"
+    	
+	def leer_fichero(self,fichero):
+        	texto=""
+		f = open (fichero,"r")
+		for linea in f.readlines():
+			texto = texto + linea
+		f.close()
+		return texto
+	
+	def leer_comando(self,comando):
+		df=os.popen(comando)
+		salida=df.read()
+		df.close()
+		return salida
+
+	def actualizar_barra(self,num):
+		gtk.threads_enter()
+		self.progressbar1.set_percentage(num)
+		self.progressbar1.queue_draw()
+		while gtk.events_pending(): gtk.main_iteration()
+		gtk.threads_leave()
+	
+	def continuar_fase(self):
+		self.fases[0].hide()
+		self.fases.append(self.fases.pop(0))
+		self.fases[0].show()
+	
+	def retrasar_fase(self):
+		self.fases[0].hide()
+		self.fases.insert(0,self.fases.pop(-1))
+		self.fases[0].show()
+	
+'''	def dir_size (self, start, follow_links, my_depth, max_depth):
+	        total = 0L
+		try:
+			dir_list = os.listdir (start)
+		except:
+			if isdir (start):
+				print 'Cannot list directory %s' % start
+			return 0
+		for item in dir_list:
+			path = '%s/%s' % (start, item)
+			try:
+				stats = os.stat (path)
+			except:
+				null = "null"	
+				continue
+			total += stats[6]
+			if isdir (path) and (follow_links or (not follow_links and not islink (path))):
+				bytes = self.dir_size (path, follow_links, my_depth + 1, max_depth)
+				total += bytes
+				if (my_depth < max_depth):
+					print_path (path, bytes)
+		return total
+'''
+
+#<vud1> >>> import parted
+#<vud1> >>> parted.init()
+#<vud1> >>> parted.device_probe_all()
+#<vud1> >>> for device in parted.get_devices():
+#<vud1> ...     device.get_path()
+#<vud1> ... 
+#<vud1> '/dev/hda'
+
+
+#disk=device.disk_open()
+# for part in disk.get_part_list():
+#...     print part
+#        part.get_num()
+#
+# -1
+#  1
+#  2
+#  4
+#  3
+
+
+app = SynceGladeApp('/usr/share/xevian-install/instalador.glade', 'window1')
+#app = SynceGladeApp('./instalador.glade', 'window1')
+app.run()
+
+	

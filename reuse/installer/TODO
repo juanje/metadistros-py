@@ -1,0 +1,16 @@
+1- Particionar
+2- Elegir particion
+3- Montar la particion y copiar de /META/* a la particion
+4- Preguntar por el nombre de la makina
+5- Por el usuario
+6- Por el root
+7- Configurar la red
+8- Detectar los dispositivos que tiene que crear enlaces en /dev/
+9- Comprobar que se ha terminado de copiar al disco
+10- Crear el /etc/fstab
+11- Copiar el XF86Config* al disco
+12- Configurar el nombre de la makina
+13- Añadir el usuario y cambiar la clave del root
+14- Configurar los archivos de red
+15- Configurar el archivo /etc/modules
+16- Configurar el grub
