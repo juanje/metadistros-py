@@ -71,4 +71,4 @@ In addition, tasks with a dotted arrow and name as {Optional} are such, optional
 
 All this process will be held out of the system that it's going to be installed or booted "live", so it is independient of the system: debian (stable, testing, unstable), Red Hat, Mandrake, Gentoo. Also the system can be compressed or not. Once installed, it won't be any diference between this installed system and one installed using packages and default instalation method (unless the easy installation, of course ;)
 
-[1] Where this mail says "Arranque": https://listas.hispalinux.es/pipermail/meta-distros/2003-January/000627.html
+[1] Where this mail says "Arranque": https://web.archive.org/web/20050427201806/listas.hispalinux.es/pipermail/meta-distros/2003-January/000627.html
